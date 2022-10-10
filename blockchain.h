@@ -2,17 +2,16 @@
 
 #include "block.h"
 
-// implement template and smart pointers'
 template<typename Data=int>
 class Blockchain {
 private:
     // mutables
-    int size; // size of blockchain
+    int size{}; // size of blockchain
     Block<Data> * current;
     // fixed
     Block<Data> * genesis;
-    int precision;
-    int max_transactions;
+    int precision{};
+    int max_transactions{};
     
 public:
     Blockchain(){
@@ -28,8 +27,7 @@ public:
 
     // insert must accept a class Transaction with his elements
     void insert(Transaction<Data>* transaction){
-        // *insert every element in a tree for later searches*
-        // <>inserting...</>
+        // insert every element in a tree for later searches
         this->current->add_transaction(transaction);
         if (this->current->get_size() == this->max_transactions){
             // if current block is full, create a new one based on the previous hash
@@ -56,8 +54,7 @@ public:
         temp->add_transaction(transaction);
         auto new_prev_hash = temp->mine();
         n=0;
-        // modificamos hasta el ultimo bloque
-        // verificar si es necesario "&& temp->next->get_size() == this->max_transactions"
+        // Modified until last block
         while(temp->next != nullptr){
             temp = temp->next;
             temp->set_prev_hash(new_prev_hash);
@@ -67,20 +64,8 @@ public:
         }
         std::cout << "Cantidad de Bloques Modificados: " << n <<std::endl;
     }
-    // metodo para agregar elementos al bloque hasta llenarlo y luego unirlo a la cadena
-    // no usado por actualizacion del sistema.
-    void add_block(Block<Data>* block){
-        block->set_precision(this->precision);
-        block->set_prev_hash(this->current->get_hash());
-        block->mine();
-        // unimos los bloques
-        this->current->next = block;
-        // actualizamos el ultimo bloque
-        this->current = block;
-        this->size++;
-    }
 
-    // Iteramos por los bloques e imprimimos sus datos
+    // Iterate over all blocks, print data
     void print_chain(){
         int n =1;
         Block<Data> * temp = this->genesis->next;
@@ -88,7 +73,6 @@ public:
             std::cout << "Block # " << n << ": "<< std::endl;
             std::cout << "Hash: " << temp->get_hash() << std::endl;
             std::cout << "Prev Hash: " << temp->get_prev_hash() << std::endl;
-//            std::cout << "Merkle Root: " << current->get_merkleroot() << std::endl;
             std::cout << "Transactions: " << temp->get_transactions() << std::endl;
             std::cout << "Nonce: " << temp->get_nonce() << std::endl;
             std::cout << "Size: " << temp->get_size() << std::endl;
@@ -97,17 +81,6 @@ public:
             n++;
         }
     }
-    /*
-    bool find_transaction(std::string _transaction){
-        Block * current = this->genesis->next;
-        while(current != nullptr){
-            if (current->verify(_transaction)){
-                return true;
-            }
-            current = current->next;
-        }
-        return false;
-    }*/
 
     int size_block() const{
         return this->size;

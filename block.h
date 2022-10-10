@@ -1,20 +1,18 @@
 #include <utility>
 #include "merkle.h"
+#include "double.h"
 #include "transaction.h"
 
-// use hash & smart pointers
-// implement template
 template<typename Data=int>
 class Block {
 private:
-// asignar a cada bloque los valores 
+// Assign values to each block
 // ***  prev_hash, precision y max_transactions  ***
     std::string prev_hash;
     std::string hash;
     std::string transactions_value;
-    std::vector<Transaction<Data>*> transactions;
-    std::vector<std::string> transactions_data;
-    // add timestamp
+    DoubleList<Transaction<Data>*> transactions;
+    DoubleList<std::string> transactions_data;
     int nonce;
     int size;
     int precision;
@@ -32,11 +30,10 @@ public:
     Block(std::string _prev_hash, int max){
         this->prev_hash = _prev_hash;
         this->max_transactions = max;
-        this->transactions.emplace_back(new Transaction<Data>());
-        this->transactions_data.emplace_back("Genesis Block");
-        this->transactions.shrink_to_fit();
+        this->transactions.push_back(new Transaction<Data>());
+        this->transactions_data.push_back("Genesis Block");
         this->nonce = 0;
-        this->precision = 2;
+        this->precision = 3;
         this->size = -1;
         this->mine();
     };
@@ -47,15 +44,12 @@ public:
     int get_nonce() const;
     int get_size() const;
     std::string get_merkleroot() const;
-    //void set_nonce(int nonce);
     void set_precision(int _precision);
     void set_max_transactions(int _max);
     void set_prev_hash(std::string _prev);
-//    void add_transaction(const std::string& transaction);
     void add_transaction(Transaction<Data>* transaction);
     std::string mine();
     std::string calculate_hash();
-    // ** bool verify(std::string _transaction); // find in the tree the hashed transaction
 
     Block * next;
     merkle::MerkleNode * root;
@@ -113,7 +107,6 @@ void Block<Data>::add_transaction(Transaction<Data>* _transaction){
         std::cout << "Block is full" << std::endl;
         // if this->hash or this->root have not been defined then:
         this->root = merkle::Build(this->transactions_data);
-
         this->mine();
     } else {
         std::cout << "Transaction Added: " << *_transaction << std::endl;
